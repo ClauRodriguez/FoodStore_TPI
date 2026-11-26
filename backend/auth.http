@@ -1,0 +1,96 @@
+@baseUrl = http://localhost:8000
+@adminEmail = admin@foodstore.local
+@adminPassword = Admin123!
+@userEmail = usuario.u9@example.com
+@userPassword = Usuario123!
+
+### 1. Registro público: 201
+# @name registerUser
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "nombre": "Usuario",
+  "apellido": "U9",
+  "email": "{{userEmail}}",
+  "celular": "3515551234",
+  "password": "{{userPassword}}"
+}
+
+### 2. Email repetido: 409
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "nombre": "Otro",
+  "apellido": "Usuario",
+  "email": "{{userEmail}}",
+  "password": "{{userPassword}}"
+}
+
+### 3. Login user: cookie HttpOnly
+POST {{baseUrl}}/api/v1/auth/token
+Content-Type: application/x-www-form-urlencoded
+
+username={{userEmail}}&password={{userPassword}}
+
+### 4. Perfil autenticado: 200
+GET {{baseUrl}}/api/v1/auth/me
+
+### 5. User puede leer categorías: 200
+GET {{baseUrl}}/categorias/
+
+### 6. User NO puede escribir categorías: 403
+POST {{baseUrl}}/categorias/
+Content-Type: application/json
+
+{
+  "nombre": "Solo Admin U9",
+  "descripcion": "Debe devolver 403"
+}
+
+### 7. Logout: 204 y borra cookie
+POST {{baseUrl}}/api/v1/auth/logout
+
+### 8. Sin cookie: /me devuelve 401
+GET {{baseUrl}}/api/v1/auth/me
+
+### 9. Login admin (requiere python seed.py)
+POST {{baseUrl}}/api/v1/auth/token
+Content-Type: application/x-www-form-urlencoded
+
+username={{adminEmail}}&password={{adminPassword}}
+
+### 10. Admin crea categoría: 201
+# @name adminCategory
+POST {{baseUrl}}/categorias/
+Content-Type: application/json
+
+{
+  "nombre": "Seguridad U9",
+  "descripcion": "Creada por admin"
+}
+
+### 11. Admin lista usuarios: 200
+GET {{baseUrl}}/api/v1/auth/admin/usuarios
+
+### 12. Desactivar usuario: 200
+POST {{baseUrl}}/api/v1/auth/admin/usuarios/{{registerUser.response.body.id}}/desactivar
+
+### 13. Usuario desactivado no puede iniciar sesión: 400
+POST {{baseUrl}}/api/v1/auth/logout
+
+### 14.
+POST {{baseUrl}}/api/v1/auth/token
+Content-Type: application/x-www-form-urlencoded
+
+username={{userEmail}}&password={{userPassword}}
+
+### 15. Login admin otra vez
+POST {{baseUrl}}/api/v1/auth/token
+Content-Type: application/x-www-form-urlencoded
+
+username={{adminEmail}}&password={{adminPassword}}
+
+### 16. Reactivar usuario: 200
+POST {{baseUrl}}/api/v1/auth/admin/usuarios/{{registerUser.response.body.id}}/activar

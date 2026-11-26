@@ -1,0 +1,34 @@
+@baseUrl = http://localhost:8000
+@adminEmail = admin@foodstore.local
+@adminPassword = Admin123!
+
+### Login admin (REST Client conserva la cookie del host)
+POST {{baseUrl}}/api/v1/auth/token
+Content-Type: application/x-www-form-urlencoded
+
+username={{adminEmail}}&password={{adminPassword}}
+
+### Crear
+# @name categoriaU9
+POST {{baseUrl}}/categorias/
+Content-Type: application/json
+
+{"nombre":"Categoría U9 {{$timestamp}}","descripcion":"Prueba protegida"}
+
+### Listar
+GET {{baseUrl}}/categorias/
+
+### Obtener
+GET {{baseUrl}}/categorias/{{categoriaU9.response.body.id}}
+
+### Actualizar
+PUT {{baseUrl}}/categorias/{{categoriaU9.response.body.id}}
+Content-Type: application/json
+
+{"nombre":"Categoría U9 editada {{$timestamp}}","descripcion":"Actualizada"}
+
+### Borrado lógico
+DELETE {{baseUrl}}/categorias/{{categoriaU9.response.body.id}}
+
+### Ya no aparece: 404
+GET {{baseUrl}}/categorias/{{categoriaU9.response.body.id}}
